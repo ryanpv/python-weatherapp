@@ -1,1 +1,4 @@
 /app-python3
+app/config.py
+app/.env
+app/__pycache__
