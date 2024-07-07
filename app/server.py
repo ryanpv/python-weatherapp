@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect, session
 from pprint import pprint
 
 import os
@@ -11,7 +11,7 @@ API_Key = os.getenv('API_KEY')
 app = Flask(__name__)
 print('app1', app)
 
-@app.route('/geosearch', methods=['GET'])
+@app.route('/geosearch')
 def home_page():
   city_name = request.args.get('city')
   base_url = "http://api.openweathermap.org/geo/1.0/direct?q="+city_name+"&appid="+API_Key
@@ -24,10 +24,13 @@ def home_page():
     "lon": location.get('lon')
   }
   pprint(data)
-  return data, 200
+  return redirect(f"http://localhost:9000/city/toronto?lat={ data.get('lat') }&lon={ data.get('lon') }")
 
 @app.route('/city/<city>', methods=['GET'])
 def city_weather(city):
+  lon = request.args.get('lon')
+  lat = request.args.get('lat')
+
   base_url = "https://api.openweathermap.org/data/2.5/weather?&appid="+API_Key+"&q="+city
 
   result = requests.get(base_url).json()
@@ -39,7 +42,8 @@ def city_weather(city):
     "Location": f"{ result.get('name') }, { result.get('sys').get('country') }",
     "Weather_Description": f"{ result.get('weather')[0].get('description') }"
   }
-  pprint(result)
+
+  pprint(f"lon: { lon }, lat: { lat }")
   return jsonify(data)
 
 @app.route('/current')
