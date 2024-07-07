@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from pprint import pprint
 
 import os
@@ -9,10 +9,22 @@ load_dotenv()
 API_Key = os.getenv('API_KEY')
 
 app = Flask(__name__)
+print('app1', app)
 
-@app.route('/')
+@app.route('/geosearch', methods=['GET'])
 def home_page():
-  return "Hello World"
+  city_name = request.args.get('city')
+  base_url = "http://api.openweathermap.org/geo/1.0/direct?q="+city_name+"&appid="+API_Key
+  result = requests.get(base_url).json()
+  location = result[0]
+  data = {
+    "city": location.get('country'),
+    "state": location.get('state'),
+    "lat": location.get('lat'),
+    "lon": location.get('lon')
+  }
+  pprint(data)
+  return data, 200
 
 @app.route('/city/<city>', methods=['GET'])
 def city_weather(city):
