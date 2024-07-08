@@ -9,7 +9,7 @@ load_dotenv()
 API_Key = os.getenv('API_KEY')
 
 app = Flask(__name__)
-print('app1', app)
+app.secret_key = 'jf3A&&]32ADFb8298hh'
 
 @app.route('/geosearch')
 def home_page():
@@ -23,6 +23,8 @@ def home_page():
     "lat": location.get('lat'),
     "lon": location.get('lon')
   }
+
+  session['data'] = data
   pprint(data)
   return redirect(f"http://localhost:9000/city/toronto?lat={ data.get('lat') }&lon={ data.get('lon') }")
 
@@ -30,21 +32,41 @@ def home_page():
 def city_weather(city):
   lon = request.args.get('lon')
   lat = request.args.get('lat')
-
-  base_url = "https://api.openweathermap.org/data/2.5/weather?&appid="+API_Key+"&q="+city
+  location = session.get('data')
+  # base_url = "https://api.openweathermap.org/data/2.5/weather?&appid="+API_Key+"&q="+city
+  base_url = f"https://api.openweathermap.org/data/2.5/weather?lat={ lat }&lon={ lon }&appid={ API_Key }"
 
   result = requests.get(base_url).json()
 
   # if "name" not in result or "sys" not in result:
   #   return None
   
-  data = {
-    "Location": f"{ result.get('name') }, { result.get('sys').get('country') }",
-    "Weather_Description": f"{ result.get('weather')[0].get('description') }"
-  }
+  # data = {
+  #   "Location": f"{ result.get('name') }, { result.get('sys').get('country') }",
+  #   "Weather_Description": f"{ result.get('weather')[0].get('description') }"
+  # }
 
-  pprint(f"lon: { lon }, lat: { lat }")
-  return jsonify(data)
+  pprint(location)
+  return jsonify(result)
+
+@app.route('/coordinates', methods=['GET'])
+def coordinates():
+  try:
+      lon = float(request.args.get('lon')) if request.args.get('lon') else None
+      lat = float(request.args.get('lat')) if request.args.get('lat') else None
+
+      if not lat or not lon:
+        raise ValueError("Missing latitude or longitude value.")
+      
+      base_url = f"https://api.openweathermap.org/data/2.5/weather?lat={ lat }&lon={ lon }&appid={ API_Key }"
+
+      result = requests.get(base_url).json()
+      return result
+  
+  except ValueError as e:
+    pprint({ "ERROR: ": e })
+    return f"VALUE ERROR: { e }"
+
 
 @app.route('/current')
 def current_weather():
