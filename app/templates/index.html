@@ -5,6 +5,7 @@
     <h1>Hello World!</h1>
     <h2>Welcome to my Flask Weather App</h2>
     <h3>These are the list of routes:</h3>
+    {% if routes_data %}
     <ul>
         {% for key, value in routes_data.items() %}
             {% if key != 'message' %}
@@ -12,4 +13,5 @@
             {% endif %}
         {% endfor %}
     </ul>
+    {% endif %}
 {% endblock %}
