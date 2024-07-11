@@ -1,5 +1,6 @@
 import requests
-from flask import Flask, jsonify, request, redirect, session
+import datetime
+from flask import Flask, jsonify, request, redirect, session, render_template
 from pprint import pprint
 
 import os
@@ -12,11 +13,16 @@ SECRET_Key = os.getenv('SECRET_KEY')
 app = Flask(__name__)
 app.secret_key = SECRET_Key
 
+############ TEMPLATES #############
+@app.route('/template1')
+def template1():
+  return render_template('index.html', utc_dt=datetime.datetime.now())
+
 ############## ROUTES ###############
 @app.route('/', methods=['GET'])
 def home_page():
   data = {
-    "message": "Welcome to home page",
+    "message": "These are the list of routes",
     "route_1": "'/coordinates?city=<city>' to get lat/lon of a city's coordinates",
     "route_2": "'/coordinates/list?lat=<lat_value>&lon=<lon_value>' to fetch weather using lat/lon values",
     "route_3": "'/coordinates/list/<city>' fetches coordinates of city and redirects to route 4",
@@ -24,7 +30,8 @@ def home_page():
     "route_5": "'/cities/<city>' fetches weather using just city name"
   }
 
-  return data
+  return render_template('index.html', routes_data=data)
+
 
 # ROUTE TO GET LAT / LON COORDINATES
 @app.route('/coordinates', methods=['GET'])
