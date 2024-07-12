@@ -34,9 +34,14 @@ def home_page():
 
 
 # ROUTE TO GET LAT / LON COORDINATES
-@app.route('/coordinates', methods=['GET'])
+@app.route('/coordinates', methods=['GET', 'POST'])
 def coordinates():
   try:
+    print("METHOD: ", request.method)
+    if request.method == 'POST':
+      print('POSTING: ', request.form['city_name'])
+      return "Succuessfully posted"
+  
     city_name = request.args.get('city')
     if not city_name:
       raise ValueError("Missing/Invalid city query parameter.")
@@ -100,6 +105,25 @@ def redirectedData():
   base_url = f"https://api.openweathermap.org/data/2.5/weather?lat={ lat }&lon={ lon }&appid={ API_Key }"
   result = requests.get(base_url).json()
   return result
+
+# LIST OF CITIES
+@app.route('/cities', methods=['GET', 'POST'])
+def city_list():
+  try:
+    cities = ['city1', 'city2', 'city3']
+
+    if request.method == 'GET':
+      print('cities get requested', cities)
+      return render_template('index.html', city_list=cities)
+    
+    if request.method == 'POST':
+      print("POST to /cities")
+      city = request.form['city_name']
+      cities.append(city)
+      return render_template('index.html', city_list=cities)
+    
+  except Exception as e:
+    print(e)
 
 # DIRECT QUERY USING CITY NAME
 @app.route('/cities/<city>', methods=['GET'])

@@ -20,6 +20,11 @@
   </nav>
   <hr>
   <div class="content">
+    <form action="/cities" method="post">
+      <label for="city">City</label>
+      <input name="city_name" id="city" type="text">
+      <button type="submit">submit</button>
+    </form>
     {% block content %} {% endblock %}
   </div>
 </body>
