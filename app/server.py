@@ -32,7 +32,6 @@ def home_page():
 
   return render_template('index.html', routes_data=data)
 
-
 # ROUTE TO GET LAT / LON COORDINATES
 @app.route('/coordinates', methods=['GET', 'POST'])
 def coordinates():
@@ -107,7 +106,7 @@ def redirectedData():
   return result
 
 # LIST OF CITIES
-@app.route('/cities', methods=['GET', 'POST'])
+@app.route('/cities', methods=['GET', 'POST', 'DELETE'])
 def city_list():
   try:
     cities = ['city1', 'city2', 'city3']
@@ -122,7 +121,14 @@ def city_list():
       cities.append(city)
       return render_template('index.html', city_list=cities)
     
-  except Exception as e:
+    if request.method == 'DELETE':
+      city = request.form.get('city_name')
+      cities.remove(city)
+
+      print('removing city from list', cities)
+      return render_template('index.html', city_list=cities)
+
+  except ValueError as e:
     print(e)
 
 # DIRECT QUERY USING CITY NAME
@@ -136,6 +142,19 @@ def city_weather(city):
   pprint(location)
   return jsonify(result)
 
+# RETURN HTML
+@app.route('/htmltest', methods=['GET', 'POST'])
+def test():
+  if request.method == 'POST':
+    print(request.form['tester'])
+  
+  return '''
+    <form method="POST">
+      <label for="tester">Test</label>
+      <input type="text" name="tester" />
+      <input type="submit" value="submit">
+    </form>
+  '''
 
 
 app.run(host="0.0.0.0", port=9000, debug=True)
